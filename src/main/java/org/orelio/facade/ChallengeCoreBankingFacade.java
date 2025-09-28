@@ -6,6 +6,7 @@ import org.orelio.model.Account;
 import org.orelio.model.Constants;
 import org.orelio.model.Operation;
 import org.springframework.stereotype.Service;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,21 +14,21 @@ import java.util.Map;
 public class ChallengeCoreBankingFacade {
     private static final Map<String, Account> accountMap = new HashMap<>();
 
-    public Account createAccount(Account account){
-        accountMap.put(account.getId(),account);
+    public Account createAccount(Account account) {
+        accountMap.put(account.getId(), account);
         return account;
     }
 
-    public Account updateAccount(Account account, String accountId){
-        accountMap.put(accountId,account);
+    public Account updateAccount(Account account, String accountId) {
+        accountMap.put(accountId, account);
         return account;
     }
 
-    public Account getAccount(String accountId){
+    public Account getAccount(String accountId) {
         return accountMap.get(accountId);
     }
 
-    public void resetAccount(){
+    public void resetAccount() {
         accountMap.clear();
     }
 
@@ -44,32 +45,40 @@ public class ChallengeCoreBankingFacade {
         switch (optTypeStr) {
             case Constants.DEPOSIT:
 
-                if(accountReturn == null){
+                if (accountReturn == null) {
                     account.setId(operation.getDestination());
-                    account.setBalance(Long.valueOf(operation.getAmount()));
+                    account.setBalance(Long.parseLong(operation.getAmount()));
                 } else {
                     account.setId(accountReturn.getId());
                     account.setBalance(accountReturn.getBalance() + Long.parseLong(operation.getAmount()));
                 }
-                return resultJsonAPI(createAccount(account), Constants.fmtDestination) ;
+                return resultJsonAPI(createAccount(account), Constants.fmtDestination);
 
             //break;
             case Constants.TRANSFER:
 
-                if (accountReturn != null && accountOrigin != null) {
-
+                if (accountOrigin != null) {
+                    String jsonResult = "";
                     //destination
-                    account.setId(accountReturn.getId());
-                    account.setBalance(accountReturn.getBalance() + Long.parseLong(operation.getAmount()));
-                    //updateAccount(account, accountReturn.getId());
-                    String jsonResult = resultJsonAPI(updateAccount(account, accountReturn.getId()));
+                    if (accountReturn == null) {
+                        account.setId(operation.getDestination());
+                        account.setBalance(Long.parseLong(operation.getAmount()));
+                        //updateAccount(account, accountReturn.getId());
+                        jsonResult = resultJsonAPI(createAccount(account));
+                    } else {
+                        account.setId(accountReturn.getId());
+                        account.setBalance(accountReturn.getBalance() + Long.parseLong(operation.getAmount()));
+                        //updateAccount(account, accountReturn.getId());
+                        jsonResult = resultJsonAPI(updateAccount(account, accountReturn.getId()));
+                    }
 
                     //origin
+                    account = new Account();
                     account.setId(accountOrigin.getId());
                     account.setBalance(accountOrigin.getBalance() - Long.parseLong(operation.getAmount()));
-                    updateAccount(account, accountReturn.getId());
+                    //updateAccount(account, accountOrigin.getId());
 
-                    return String.format(Constants.fmtOriginDestin, resultJsonAPI(updateAccount(account, accountReturn.getId())), jsonResult);
+                    return String.format(Constants.fmtOriginDestin, resultJsonAPI(updateAccount(account, accountOrigin.getId())), jsonResult);
 
                 }
                 return Constants.ZERO;
@@ -81,8 +90,7 @@ public class ChallengeCoreBankingFacade {
                     account.setId(accountOrigin.getId());
                     account.setBalance(accountOrigin.getBalance() - Long.parseLong(operation.getAmount()));
                     //return String.format(fmtDestination,  updateAccount(account, resultId));
-
-                    return resultJsonAPI(updateAccount(account, account.getId()), Constants.fmtDestination) ;
+                    return resultJsonAPI(updateAccount(account, account.getId()), Constants.fmtOrigin);
 
                 }
                 return Constants.ZERO;
@@ -93,7 +101,7 @@ public class ChallengeCoreBankingFacade {
         }
     }
 
-    public String resultJsonAPI(Account account, String fmt){
+    public String resultJsonAPI(Account account, String fmt) {
         try {
             ObjectMapper objMapper = new ObjectMapper();
             String jsonStr = objMapper.writeValueAsString(account);
@@ -104,7 +112,8 @@ public class ChallengeCoreBankingFacade {
         }
 
     }
-    public String resultJsonAPI(Account account){
+
+    public String resultJsonAPI(Account account) {
         try {
             ObjectMapper objMapper = new ObjectMapper();
             return objMapper.writeValueAsString(account);
@@ -114,7 +123,6 @@ public class ChallengeCoreBankingFacade {
         }
 
     }
-
 
 
 }

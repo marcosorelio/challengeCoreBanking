@@ -21,11 +21,11 @@ public class GreetingsController {
     @Autowired
     private ChallengeCoreBankingFacade challengeCoreBankingFacade;
 
-    @GetMapping("/reset")
+    @PostMapping("/reset")
     @ResponseBody
-    public ResponseEntity<Void> restBalance(){
+    public ResponseEntity<String> restBalance(){
             challengeCoreBankingFacade.resetAccount();
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<String>("OK", HttpStatus.OK);
     }
 
     @GetMapping("/balance")
@@ -35,7 +35,7 @@ public class GreetingsController {
         if(account != null){
             return new ResponseEntity<String>(account.getBalance().toString(), HttpStatus.OK);
         }
-        return new ResponseEntity<String>("0", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<String>(Constants.ZERO, HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/event")
@@ -43,9 +43,10 @@ public class GreetingsController {
     public ResponseEntity<String> deposit(@RequestBody Operation operation){
         String resultBalance = challengeCoreBankingFacade.operationEvent(operation);
         if(!resultBalance.equals(Constants.ZERO)){
-            return new ResponseEntity<String>(resultBalance,  HttpStatus.OK);
+            return new ResponseEntity<String>(resultBalance,  HttpStatus.CREATED);
         }
         return new ResponseEntity<String>(resultBalance, HttpStatus.NOT_FOUND);
     }
+
 
 }
