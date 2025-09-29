@@ -10,9 +10,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- *
- * A sample greetings controller to return greeting text
+/**Class Rest Controller to create request API
+ * @author Marcos Orelio
+ * @version 1.0-SNAPSHOT
+ * @since 28/09/2025
  */
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)

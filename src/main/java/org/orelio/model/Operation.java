@@ -1,5 +1,10 @@
 package org.orelio.model;
 
+/**Object Class Operation, where Getter and Setter variables will be contained.
+ * @author Marcos Orelio
+ * @version 1.0-SNAPSHOT
+ * @since 28/09/2025
+ */
 public class Operation {
 
     private String type;
@@ -7,6 +12,7 @@ public class Operation {
     private String origin;
     private String destination;
 
+    // Generated Getter and Setter
     public String getType() {
         return type;
     }

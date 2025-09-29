@@ -1,14 +1,18 @@
 package org.orelio.facade;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.orelio.model.Account;
 import org.orelio.model.Constants;
 import org.orelio.model.Operation;
+import org.orelio.util.ChallengeCoreUtils;
 import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.Map;
+
+/**Class Facade to create, update, return and remove Accounts final Map<String>
+ * @author Marcos Orelio
+ * @version 1.0-SNAPSHOT
+ * @since 28/09/2025
+ */
 
 @Service
 public class ChallengeCoreBankingFacade {
@@ -32,19 +36,22 @@ public class ChallengeCoreBankingFacade {
         accountMap.clear();
     }
 
-
+    /**Method to identify operation field Type by API request body
+     * @since 28/09/2025
+     * @param Operation - Object to Request API
+     * @return String
+     */
     public String operationEvent(Operation operation) {
+        // return String types of operation (deposit, withdraw and transfer)
         String optTypeStr = operation.getType().toLowerCase();
-        String resultOrigin = operation.getOrigin();
-        String resultDestin = operation.getDestination();
-        //GET ACCOUNT
-        //Long resultBalance = getAccount(resultId);
+        // return Object Accounts (destination and origin)
         Account accountReturn = getAccount(operation.getDestination());
         Account accountOrigin = getAccount(operation.getOrigin());
+        // new Account to used instance
         Account account = new Account();
         switch (optTypeStr) {
             case Constants.DEPOSIT:
-
+                //verify param account destination
                 if (accountReturn == null) {
                     account.setId(operation.getDestination());
                     account.setBalance(Long.parseLong(operation.getAmount()));
@@ -52,46 +59,42 @@ public class ChallengeCoreBankingFacade {
                     account.setId(accountReturn.getId());
                     account.setBalance(accountReturn.getBalance() + Long.parseLong(operation.getAmount()));
                 }
-                return resultJsonAPI(createAccount(account), Constants.fmtDestination);
+                return ChallengeCoreUtils.resultJsonAPI(createAccount(account), Constants.fmtDestination);
 
-            //break;
             case Constants.TRANSFER:
-
+                //verify param account origin
                 if (accountOrigin != null) {
                     String jsonResult = "";
-                    //destination
+
                     if (accountReturn == null) {
+                        // if account destination not exists create new one
                         account.setId(operation.getDestination());
                         account.setBalance(Long.parseLong(operation.getAmount()));
-                        //updateAccount(account, accountReturn.getId());
-                        jsonResult = resultJsonAPI(createAccount(account));
+                        jsonResult = ChallengeCoreUtils.resultJsonAPI(createAccount(account));
+
                     } else {
+                        // if account exists sum balance (not specify in Transfer from existing account)
                         account.setId(accountReturn.getId());
                         account.setBalance(accountReturn.getBalance() + Long.parseLong(operation.getAmount()));
                         //updateAccount(account, accountReturn.getId());
-                        jsonResult = resultJsonAPI(updateAccount(account, accountReturn.getId()));
+                        jsonResult = ChallengeCoreUtils.resultJsonAPI(updateAccount(account, accountReturn.getId()));
                     }
 
-                    //origin
+                    //origin minus balance
                     account = new Account();
                     account.setId(accountOrigin.getId());
                     account.setBalance(accountOrigin.getBalance() - Long.parseLong(operation.getAmount()));
-                    //updateAccount(account, accountOrigin.getId());
 
-                    return String.format(Constants.fmtOriginDestin, resultJsonAPI(updateAccount(account, accountOrigin.getId())), jsonResult);
-
+                    return String.format(Constants.fmtOriginDestin, ChallengeCoreUtils.resultJsonAPI(updateAccount(account, accountOrigin.getId())), jsonResult);
                 }
                 return Constants.ZERO;
 
-            //break;
             case Constants.WITHDRAW:
-
+                //verify param account origin
                 if (accountOrigin != null) {
                     account.setId(accountOrigin.getId());
                     account.setBalance(accountOrigin.getBalance() - Long.parseLong(operation.getAmount()));
-                    //return String.format(fmtDestination,  updateAccount(account, resultId));
-                    return resultJsonAPI(updateAccount(account, account.getId()), Constants.fmtOrigin);
-
+                    return ChallengeCoreUtils.resultJsonAPI(updateAccount(account, account.getId()), Constants.fmtOrigin);
                 }
                 return Constants.ZERO;
 
@@ -101,28 +104,6 @@ public class ChallengeCoreBankingFacade {
         }
     }
 
-    public String resultJsonAPI(Account account, String fmt) {
-        try {
-            ObjectMapper objMapper = new ObjectMapper();
-            String jsonStr = objMapper.writeValueAsString(account);
-            return String.format(fmt, jsonStr);
-
-        } catch (Exception e) {
-            return Constants.ZERO;
-        }
-
-    }
-
-    public String resultJsonAPI(Account account) {
-        try {
-            ObjectMapper objMapper = new ObjectMapper();
-            return objMapper.writeValueAsString(account);
-
-        } catch (Exception e) {
-            return Constants.ZERO;
-        }
-
-    }
 
 
 }
