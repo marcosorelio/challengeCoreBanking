@@ -16,6 +16,7 @@ ChallengeCoreBanking is a lightweight banking application built with Spring Boot
 - **In-Memory Storage**: Fast, temporary storage using HashMap
 - **H2 Database Console**: Web-based database management interface
 - **Comprehensive Testing**: Full JUnit test suite with examples
+- **Complete Javadoc**: Comprehensive API documentation for all classes
 
 ## 🚀 Quick Start
 
@@ -189,6 +190,31 @@ mvn test -Dtest=AllTestsSuite
 
 For detailed testing documentation, see [TEST_README.md](TEST_README.md).
 
+## 📚 API Documentation
+
+### Javadoc Documentation
+
+The project includes comprehensive Javadoc documentation for all classes and methods:
+
+```bash
+# Generate Javadoc HTML documentation
+mvn javadoc:javadoc
+
+# Access generated documentation
+open target/site/apidocs/index.html
+```
+
+**Documented Classes:**
+- `Application` - Main Spring Boot application
+- `GreetingsController` - REST API endpoints
+- `ChallengeCoreBankingFacade` - Business logic service
+- `Account` - Bank account model
+- `Operation` - Banking operation model
+- `Constants` - Application constants
+- `ChallengeCoreUtils` - JSON utility methods
+
+For detailed Javadoc information, see [JAVADOC_GUIDE.md](JAVADOC_GUIDE.md).
+
 ## 🏗️ Project Structure
 
 ```
@@ -219,6 +245,7 @@ challengeCoreBanking/
 │           └── suite/                          # Test suites
 ├── pom.xml                                     # Maven configuration
 ├── TEST_README.md                              # Testing documentation
+├── JAVADOC_GUIDE.md                            # Javadoc documentation guide
 ├── run_tests.sh                               # Test runner script
 └── README.md                                  # This file
 ```
